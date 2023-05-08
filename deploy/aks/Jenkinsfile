@@ -1,5 +1,5 @@
 pipeline {
-    node any
+    agent any
     tools {
         maven 'MVN_3.8.6'
         jdk 'Java1.8'
@@ -32,19 +32,19 @@ pipeline {
                 sh """
                     az login --service-principal -u "\$AZURE_CLIENT_ID" -p "\$AZURE_CLIENT_SECRET" -t "\$AZURE_TENANT_ID"
                     az account set --subscription "\$AZURE_SUBSCRIPTION_ID"
-    
+
                     set +x
                     export DOCUMENTDB_URI="\$(az cosmosdb show -g "${cosmosResourceGroup}" -n "${cosmosDbName}" --query documentEndpoint -o tsv)"
                     export DOCUMENTDB_KEY="\$(az cosmosdb list-keys -g "${cosmosResourceGroup}" -n "${cosmosDbName}" --query primaryMasterKey -o tsv)"
                     export DOCUMENTDB_DBNAME="${dbName}"
                     set -x
-    
+
                     sh ./mvnw clean package
                     az logout
                 """
             }
         }
-    
+
         stage('Docker Image') {
             withDockerRegistry([credentialsId: dockerCredentialId, url: "http://${dockerRegistry}"]) {
                 dir('target') {
@@ -56,10 +56,10 @@ pipeline {
                 }
             }
         }
-    
+
         stage('Check Env') {
             // check the current active environment to determine the inactive one that will be deployed to
-    
+
             withCredentials([azureServicePrincipal(servicePrincipalId)]) {
                 // fetch the current service configuration
                 sh """
@@ -75,22 +75,22 @@ pipeline {
                   echo "\$current_role" >current-environment
                 """
             }
-    
+
             // parse the current active backend
             currentEnvironment = readFile('current-environment').trim()
-    
+
             // set the build name
             echo "***************************  CURRENT: $currentEnvironment     NEW: ${newEnvironment()}  *****************************"
             currentBuild.displayName = newEnvironment().toUpperCase() + ' ' + imageName
-    
+
             env.TARGET_ROLE = newEnvironment()
-    
+
             // clean the inactive environment
             sh """
             kubectl --kubeconfig=kubeconfig delete deployment "todoapp-deployment-\$TARGET_ROLE"
             """
         }
-    
+
         stage('Deploy') {
             // Apply the deployments to AKS.
             // With enableConfigSubstitution set to true, the variables ${TARGET_ROLE}, ${IMAGE_TAG}, ${KUBERNETES_SECRET_NAME}
@@ -103,7 +103,7 @@ pipeline {
                       secretName: dockerRegistry,
                       containerRegistryCredentials: [[credentialsId: dockerCredentialId, url: "http://${dockerRegistry}"]]
         }
-    
+
         def verifyEnvironment = { service ->
             sh """
               endpoint_ip="\$(kubectl --kubeconfig=kubeconfig get services '${service}' --output json | jq -r '.status.loadBalancer.ingress[0].ip')"
@@ -122,12 +122,12 @@ pipeline {
               done
             """
         }
-    
+
         stage('Verify Staged') {
             // verify the deployment through the corresponding test endpoint
             verifyEnvironment("todoapp-test-${newEnvironment()}")
         }
-    
+
         stage('Switch') {
             // Update the production service endpoint to route to the new environment.
             // With enableConfigSubstitution set to true, the variables ${TARGET_ROLE}
@@ -138,12 +138,12 @@ pipeline {
                       configFilePaths: 'src/aks/service.yml',
                       enableConfigSubstitution: true
         }
-    
+
         stage('Verify Prod') {
             // verify the production environment is working properly
             verifyEnvironment('todoapp-service')
         }
-    
+
         stage('Post-clean') {
             sh '''
               rm -f kubeconfig

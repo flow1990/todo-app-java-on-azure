@@ -1,4 +1,4 @@
-pipeline {
+node('Jenkins') {
     tools {
         jdk 'Java1.8'
     }

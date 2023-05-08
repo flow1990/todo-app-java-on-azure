@@ -172,12 +172,11 @@ pipeline {
         stage('Post-clean') {
             steps {
                 scripts {
-                sh '''
-                  rm -f kubeconfig
-                '''
-            }
+                    sh '''
+                      rm -f kubeconfig
+                    '''
+                }
             }
         }
-    }
 
 }

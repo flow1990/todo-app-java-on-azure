@@ -43,12 +43,14 @@ pipeline {
 
         stage('SCM') {
             steps {
+                scripts {
                 checkout scm    
             }
         }
 
         stage('Build') {
             steps {
+                scripts {
                 withCredentials([azureServicePrincipal(servicePrincipalId)]) {
                     sh """
                         az login --service-principal -u "\$AZURE_CLIENT_ID" -p "\$AZURE_CLIENT_SECRET" -t "\$AZURE_TENANT_ID"
@@ -65,6 +67,7 @@ pipeline {
                     """
                 }
             }
+            }
         }
 
         stage('Docker Image') {
@@ -79,10 +82,12 @@ pipeline {
                     }
                 }
             }
+            }
         }
 
         stage('Check Env') {
             steps {
+                scripts {
                 // check the current active environment to determine the inactive one that will be deployed to
 
                 withCredentials([azureServicePrincipal(servicePrincipalId)]) {
@@ -100,32 +105,24 @@ pipeline {
                       echo "\$current_role" >current-environment
                     """
                 }
-                step("current-environment") {
-                    // parse the current active backend
-                    currentEnvironment = readFile('current-environment').trim()
-                }
-
-                step("echo") {
-                    // set the build name
-                    echo "***************************  CURRENT: $currentEnvironment     NEW: ${newEnvironment()}  *****************************"
-                    currentBuild.displayName = newEnvironment().toUpperCase() + ' ' + imageName
-                }
-
-                step("target-role") {
-                    env.TARGET_ROLE = newEnvironment()
-                }
-                
-                step("clean") {
-                    // clean the inactive environment
-                    sh """
-                    kubectl --kubeconfig=kubeconfig delete deployment "todoapp-deployment-\$TARGET_ROLE"
-                    """
-                }
+                // parse the current active backend
+                currentEnvironment = readFile('current-environment').trim()
+                // set the build name
+                echo "***************************  CURRENT: $currentEnvironment     NEW: ${newEnvironment()}  *****************************"
+                currentBuild.displayName = newEnvironment().toUpperCase() + ' ' + imageName
+                env.TARGET_ROLE = newEnvironment()
+            
+                // clean the inactive environment
+                sh """
+                kubectl --kubeconfig=kubeconfig delete deployment "todoapp-deployment-\$TARGET_ROLE"
+                """
+            }
             }
         }
 
         stage('Deploy') {
             steps {
+                scripts {
                 // Apply the deployments to AKS.
                 // With enableConfigSubstitution set to true, the variables ${TARGET_ROLE}, ${IMAGE_TAG}, ${KUBERNETES_SECRET_NAME}
                 // will be replaced with environment variable values
@@ -137,17 +134,21 @@ pipeline {
                           secretName: dockerRegistry,
                           containerRegistryCredentials: [[credentialsId: dockerCredentialId, url: "http://${dockerRegistry}"]]
             }
+            }
         }
 
         stage('Verify Staged') {
-            steps{
+            steps {
+                scripts {
             // verify the deployment through the corresponding test endpoint
             verifyEnvironment("todoapp-test-${newEnvironment()}")
+            }
             }
         }
 
         stage('Switch') {
             steps {
+                scripts {
                 // Update the production service endpoint to route to the new environment.
                 // With enableConfigSubstitution set to true, the variables ${TARGET_ROLE}
                 // will be replaced with environment variable values
@@ -157,10 +158,12 @@ pipeline {
                           configFilePaths: 'src/aks/service.yml',
                           enableConfigSubstitution: true
             }
+            }
         }
 
         stage('Verify Prod') {
             steps {
+                scripts {
                 // verify the production environment is working properly
                 verifyEnvironment('todoapp-service')
             }
@@ -168,9 +171,11 @@ pipeline {
 
         stage('Post-clean') {
             steps {
+                scripts {
                 sh '''
                   rm -f kubeconfig
                 '''
+            }
             }
         }
     }

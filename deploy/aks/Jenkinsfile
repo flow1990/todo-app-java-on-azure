@@ -100,20 +100,27 @@ pipeline {
                       echo "\$current_role" >current-environment
                     """
                 }
+                step("current-environment") {
+                    // parse the current active backend
+                    currentEnvironment = readFile('current-environment').trim()
+                }
 
-                // parse the current active backend
-                currentEnvironment = readFile('current-environment').trim()
+                step("echo") {
+                    // set the build name
+                    echo "***************************  CURRENT: $currentEnvironment     NEW: ${newEnvironment()}  *****************************"
+                    currentBuild.displayName = newEnvironment().toUpperCase() + ' ' + imageName
+                }
 
-                // set the build name
-                echo "***************************  CURRENT: $currentEnvironment     NEW: ${newEnvironment()}  *****************************"
-                currentBuild.displayName = newEnvironment().toUpperCase() + ' ' + imageName
-
-                env.TARGET_ROLE = newEnvironment()
-
-                // clean the inactive environment
-                sh """
-                kubectl --kubeconfig=kubeconfig delete deployment "todoapp-deployment-\$TARGET_ROLE"
-                """
+                step("target-role") {
+                    env.TARGET_ROLE = newEnvironment()
+                }
+                
+                step("clean") {
+                    // clean the inactive environment
+                    sh """
+                    kubectl --kubeconfig=kubeconfig delete deployment "todoapp-deployment-\$TARGET_ROLE"
+                    """
+                }
             }
         }
 

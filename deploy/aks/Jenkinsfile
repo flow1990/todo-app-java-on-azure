@@ -1,9 +1,10 @@
 pipeline {
+    agent any
     tools {
        maven 'MVN_3.8.6'
        jdk 'Java1.8'
     }
-    agent any {
+    {
 
         def servicePrincipalId = 'AzureServicePrincipal'
         def resourceGroup = 'flow2'

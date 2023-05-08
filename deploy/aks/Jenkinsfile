@@ -1,5 +1,7 @@
 node('master') {
-
+    tools {
+        jdk 'Java1.8'
+    }
     def servicePrincipalId = '<your-service-principal>'
     def resourceGroup = '<your-resource-group-name>'
     def aks = '<your-kubernetes-cluster-name>'

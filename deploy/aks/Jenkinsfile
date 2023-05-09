@@ -98,10 +98,10 @@ node('master') {
         //          secretName: dockerRegistry,
         //          containerRegistryCredentials: [[credentialsId: dockerCredentialId, url: "http://${dockerRegistry}"]]
         //)
-        sh "sudo docker tag ${dockerRegistry}/todo:latest ${dockerRegistry}/todo-aks:latest"
-		sh "sudo docker tag ${dockerRegistry}/todo:latest ${dockerRegistry}/todo-aks:${env.BUILD_ID}"
-        sh "sudo docker push ${dockerRegistry}/todo-aks:latest:latest"
-		sh "sudo docker push ${dockerRegistry}/todo-aks:latest:${env.BUILD_ID}"
+        sh "docker tag ${dockerRegistry}/${env.IMAGE_TAG}:latest ${dockerRegistry}/${env.IMAGE_TAG}-aks:latest"
+		sh "docker tag ${dockerRegistry}/${env.IMAGE_TAG}:latest ${dockerRegistry}/${env.IMAGE_TAG}-aks:${env.BUILD_ID}"
+        sh "docker push ${dockerRegistry}/${env.IMAGE_TAG}-aks:latest:latest"
+		sh "docker push ${dockerRegistry}/${env.IMAGE_TAG}-aks:latest:${env.BUILD_ID}"
         sh "kubectl rollout restart deployment todo-app"
     }
 

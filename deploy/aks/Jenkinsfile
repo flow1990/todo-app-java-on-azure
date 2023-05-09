@@ -127,11 +127,11 @@ node('master') {
         // Update the production service endpoint to route to the new environment.
         // With enableConfigSubstitution set to true, the variables ${TARGET_ROLE}
         // will be replaced with environment variable values
-        acsDeploy azureCredentialsId: servicePrincipalId,
+        acsDeploy(azureCredentialsId: servicePrincipalId,
                   resourceGroupName: resourceGroup,
                   containerService: "${aks} | AKS",
                   configFilePaths: 'src/aks/service.yml',
-                  enableConfigSubstitution: true
+                  enableConfigSubstitution: true)
     }
 
     stage('Verify Prod') {

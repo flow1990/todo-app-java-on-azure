@@ -2,7 +2,7 @@ node('master') {
 
     def servicePrincipalId = 'AzureServicePrincipal'
     def resourceGroup = 'flow2'
-    def aks = 'flow8k'
+    def aks = 'flowk8'
 
     def cosmosResourceGroup = 'flowcosmodb'
     def cosmosDbName = 'flow2cosmodb'

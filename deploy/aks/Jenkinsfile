@@ -18,8 +18,8 @@ node('master') {
         currentEnvironment == 'blue' ? 'green' : 'blue'
     }
 
-    def  environment {
-        MY_CRED = credentials('credentials_id')
+    def environment {
+        MY_CRED = credentials(servicePrincipalId)
     }
 
     stage('SCM') {

@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk-alpine
+FROM openjdk:17-jdk-slim
 
 ADD todo-app-*.jar /opt/app.jar
 

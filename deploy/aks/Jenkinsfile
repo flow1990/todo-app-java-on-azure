@@ -98,7 +98,7 @@ node('master') {
         //          secretName: dockerRegistry,
         //          containerRegistryCredentials: [[credentialsId: dockerCredentialId, url: "http://${dockerRegistry}"]]
         //)
-        sh "docker tag ${env.IMAGE_TAG} ${dockerRegistry}
+        sh "docker tag ${env.IMAGE_TAG} ${dockerRegistry}"
 		sh "docker tag ${env.IMAGE_TAG} aks_${env.IMAGE_TAG}:${env.BUILD_ID}"
         sh "docker push aks_${env.IMAGE_TAG}"
 		sh "docker push aks_${env.IMAGE_TAG}:$env.BUILD_ID}"

@@ -90,14 +90,19 @@ node('master') {
         // Apply the deployments to AKS.
         // With enableConfigSubstitution set to true, the variables ${TARGET_ROLE}, ${IMAGE_TAG}, ${KUBERNETES_SECRET_NAME}
         // will be replaced with environment variable values
-        acsDeploy(azureCredentialsId: servicePrincipalId,
-                  resourceGroupName: resourceGroup,
-                  containerService: "${aks} | AKS",
-                  configFilePaths: 'src/aks/deployment.yml',
-                  enableConfigSubstitution: true,
-                  secretName: dockerRegistry,
-                  containerRegistryCredentials: [[credentialsId: dockerCredentialId, url: "http://${dockerRegistry}"]]
-        )
+        //acsDeploy(azureCredentialsId: servicePrincipalId,
+        //          resourceGroupName: resourceGroup,
+        //          containerService: "${aks} | AKS",
+        //          configFilePaths: 'src/aks/deployment.yml',
+        //          enableConfigSubstitution: true,
+        //          secretName: dockerRegistry,
+        //          containerRegistryCredentials: [[credentialsId: dockerCredentialId, url: "http://${dockerRegistry}"]]
+        //)
+        sh "sudo docker tag ${dockerRegistry}/todo:latest ${dockerRegistry}/todo-aks:latest"
+		sh "sudo docker tag ${dockerRegistry}/todo:latest ${dockerRegistry}/todo-aks:${env.BUILD_ID}"
+        sh "sudo docker push ${dockerRegistry}/todo-aks:latest:latest"
+		sh "sudo docker push ${dockerRegistry}/todo-aks:latest:${env.BUILD_ID}"
+        sh "kubectl rollout restart deployment todo-app"
     }
 
     def verifyEnvironment = { service ->

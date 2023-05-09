@@ -11,7 +11,7 @@ node('master') {
     def dockerRegistry = 'flowreg.azurecr.io'
     def imageName = "todo-app:${env.BUILD_NUMBER}"
     env.IMAGE_TAG = "${dockerRegistry}/${imageName}"
-    def dockerCredentialId = 'dockerhub'
+    def dockerCredentialId = 'dockerRegistry'
 
     def currentEnvironment = 'blue'
     def newEnvironment = { ->
@@ -21,7 +21,7 @@ node('master') {
     stage('SCM') {
         checkout scm
     }
-//
+
     stage('Build') {
         withCredentials([azureServicePrincipal(servicePrincipalId)]) {
             sh """

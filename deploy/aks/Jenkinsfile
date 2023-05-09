@@ -18,10 +18,6 @@ node('master') {
         currentEnvironment == 'blue' ? 'green' : 'blue'
     }
 
-    def environment {
-        MY_CRED = credentials(servicePrincipalId)
-    }
-
     stage('SCM') {
         checkout scm
     }
@@ -43,7 +39,9 @@ node('master') {
             """
         }
     }*/
-
+    environment {
+        MY_CRED = credentials(servicePrincipalId)
+    }
     stage('Build') {
         sh """
             sh "az login --service-principal -u $MY_CRED_CLIENT_ID -p $MY_CRED_CLIENT_SECRET -t $MY_CRED_TENANT_ID"

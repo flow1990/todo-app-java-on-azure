@@ -22,7 +22,7 @@ node('master') {
         checkout scm
     }
 
-    /*stage('Build') {
+    stage('Build') {
         withCredentials([azureServicePrincipal(servicePrincipalId)]) {
             sh """
                 az login --service-principal -u "\$AZURE_CLIENT_ID" -p "\$AZURE_CLIENT_SECRET" -t "\$AZURE_TENANT_ID"
@@ -38,19 +38,6 @@ node('master') {
                 az logout
             """
         }
-    }*/
-
-    stage('Build') {
-        sh """
-            set +x
-            export DOCUMENTDB_URI="\$(az cosmosdb show -g "${cosmosResourceGroup}" -n "${cosmosDbName}" --query documentEndpoint -o tsv)"
-            export DOCUMENTDB_KEY="\$(az cosmosdb list-keys -g "${cosmosResourceGroup}" -n "${cosmosDbName}" --query primaryMasterKey -o tsv)"
-            export DOCUMENTDB_DBNAME="${dbName}"
-            set -x
-
-            sh ./mvnw clean package
-            az logout
-        """
     }
 
     stage('Docker Image') {

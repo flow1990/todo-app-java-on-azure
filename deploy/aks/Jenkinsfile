@@ -129,16 +129,16 @@ node('master') {
         verifyEnvironment("todoapp-test-${newEnvironment()}")
     }
 
-    stage('Switch') {
-        // Update the production service endpoint to route to the new environment.
-        // With enableConfigSubstitution set to true, the variables ${TARGET_ROLE}
-        // will be replaced with environment variable values
-        acsDeploy(azureCredentialsId: servicePrincipalId,
-                  resourceGroupName: resourceGroup,
-                  containerService: "${aks} | AKS",
-                  configFilePaths: 'src/aks/service.yml',
-                  enableConfigSubstitution: true)
-    }
+    //stage('Switch') {
+    //    // Update the production service endpoint to route to the new environment.
+    //    // With enableConfigSubstitution set to true, the variables ${TARGET_ROLE}
+    //    // will be replaced with environment variable values
+    //    acsDeploy(azureCredentialsId: servicePrincipalId,
+    //              resourceGroupName: resourceGroup,
+    //              containerService: "${aks} | AKS",
+    //              configFilePaths: 'src/aks/service.yml',
+    //              enableConfigSubstitution: true)
+    //}
 
     stage('Verify Prod') {
         // verify the production environment is working properly

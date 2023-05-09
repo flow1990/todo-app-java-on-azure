@@ -98,11 +98,11 @@ node('master') {
         //          secretName: dockerRegistry,
         //          containerRegistryCredentials: [[credentialsId: dockerCredentialId, url: "http://${dockerRegistry}"]]
         //)
-        sh "docker tag ${dockerRegistry}:latest ${dockerRegistry}-aks:latest"
-		sh "docker tag ${dockerRegistry}:latest ${dockerRegistry}-aks:${env.BUILD_ID}"
-        sh "docker push ${dockerRegistry}-aks:latest"
-		sh "docker push ${dockerRegistry}-aks:latest:${env.BUILD_ID}"
-        sh "kubectl rollout restart deployment ${dockerRegistry}"
+        sh "docker tag ${env.IMAGE_TAG} ${dockerRegistry}
+		sh "docker tag ${env.IMAGE_TAG} aks_${env.IMAGE_TAG}:${env.BUILD_ID}"
+        sh "docker push aks_${env.IMAGE_TAG}"
+		sh "docker push aks_${env.IMAGE_TAG}:$env.BUILD_ID}"
+        sh "kubectl rollout restart deployment ${env.IMAGE_TAG}"
     }
 
     def verifyEnvironment = { service ->
@@ -129,16 +129,16 @@ node('master') {
         verifyEnvironment("todoapp-test-${newEnvironment()}")
     }
 
-    //stage('Switch') {
-    //    // Update the production service endpoint to route to the new environment.
-    //    // With enableConfigSubstitution set to true, the variables ${TARGET_ROLE}
-    //    // will be replaced with environment variable values
-    //    acsDeploy(azureCredentialsId: servicePrincipalId,
-    //              resourceGroupName: resourceGroup,
-    //              containerService: "${aks} | AKS",
-    //              configFilePaths: 'src/aks/service.yml',
-    //              enableConfigSubstitution: true)
-    //}
+    stage('Switch') {
+        // Update the production service endpoint to route to the new environment.
+        // With enableConfigSubstitution set to true, the variables ${TARGET_ROLE}
+        // will be replaced with environment variable values
+        acsDeploy(azureCredentialsId: servicePrincipalId,
+                  resourceGroupName: resourceGroup,
+                  containerService: "${aks} | AKS",
+                  configFilePaths: 'src/aks/service.yml',
+                  enableConfigSubstitution: true)
+    }
 
     stage('Verify Prod') {
         // verify the production environment is working properly

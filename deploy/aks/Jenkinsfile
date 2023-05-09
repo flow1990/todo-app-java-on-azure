@@ -21,7 +21,7 @@ node('master') {
     stage('SCM') {
         checkout scm
     }
-
+//
     stage('Build') {
         withCredentials([azureServicePrincipal(servicePrincipalId)]) {
             sh """

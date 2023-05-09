@@ -18,11 +18,15 @@ node('master') {
         currentEnvironment == 'blue' ? 'green' : 'blue'
     }
 
+    def  environment {
+        MY_CRED = credentials('credentials_id')
+    }
+
     stage('SCM') {
         checkout scm
     }
 
-    stage('Build') {
+    /*stage('Build') {
         withCredentials([azureServicePrincipal(servicePrincipalId)]) {
             sh """
                 az login --service-principal -u "\$AZURE_CLIENT_ID" -p "\$AZURE_CLIENT_SECRET" -t "\$AZURE_TENANT_ID"
@@ -38,6 +42,22 @@ node('master') {
                 az logout
             """
         }
+    }*/
+
+    stage('Build') {
+        sh """
+            sh "az login --service-principal -u $MY_CRED_CLIENT_ID -p $MY_CRED_CLIENT_SECRET -t $MY_CRED_TENANT_ID"
+            az account set --subscription "\$AZURE_SUBSCRIPTION_ID"
+
+            set +x
+            export DOCUMENTDB_URI="\$(az cosmosdb show -g "${cosmosResourceGroup}" -n "${cosmosDbName}" --query documentEndpoint -o tsv)"
+            export DOCUMENTDB_KEY="\$(az cosmosdb list-keys -g "${cosmosResourceGroup}" -n "${cosmosDbName}" --query primaryMasterKey -o tsv)"
+            export DOCUMENTDB_DBNAME="${dbName}"
+            set -x
+
+            sh ./mvnw clean package
+            az logout
+        """
     }
 
     stage('Docker Image') {

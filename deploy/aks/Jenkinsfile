@@ -1,4 +1,4 @@
-node('controller') {
+node('master') {
 
     def servicePrincipalId = 'AzureServicePrincipal'
     def resourceGroup = 'flow2'

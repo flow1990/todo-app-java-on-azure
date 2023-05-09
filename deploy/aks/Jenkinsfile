@@ -42,9 +42,6 @@ node('master') {
 
     stage('Build') {
         sh """
-            az login --service-principal -u credentials(servicePrincipalId)_CLIENT_ID -p credentials(servicePrincipalId)_CLIENT_SECRET -t credentials(servicePrincipalId)_TENANT_ID
-            az account set --subscription "\$AZURE_SUBSCRIPTION_ID"
-
             set +x
             export DOCUMENTDB_URI="\$(az cosmosdb show -g "${cosmosResourceGroup}" -n "${cosmosDbName}" --query documentEndpoint -o tsv)"
             export DOCUMENTDB_KEY="\$(az cosmosdb list-keys -g "${cosmosResourceGroup}" -n "${cosmosDbName}" --query primaryMasterKey -o tsv)"

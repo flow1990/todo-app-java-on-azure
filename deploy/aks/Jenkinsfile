@@ -102,7 +102,7 @@ node('master') {
 		sh "docker tag ${dockerRegistry}/${env.IMAGE_TAG}:latest ${dockerRegistry}/${env.IMAGE_TAG}-aks:${env.BUILD_ID}"
         sh "docker push ${dockerRegistry}/${env.IMAGE_TAG}-aks:latest:latest"
 		sh "docker push ${dockerRegistry}/${env.IMAGE_TAG}-aks:latest:${env.BUILD_ID}"
-        sh "kubectl rollout restart deployment todo-app"
+        sh "kubectl rollout restart deployment ${env.IMAGE_TAG}"
     }
 
     def verifyEnvironment = { service ->

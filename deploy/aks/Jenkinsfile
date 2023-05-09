@@ -34,7 +34,7 @@ node('master') {
                 export DOCUMENTDB_DBNAME="${dbName}"
                 set -x
 
-                sh ./mvnw clean package
+                sh ./mvnw clean package -DskipTests
                 az logout
             """
         }

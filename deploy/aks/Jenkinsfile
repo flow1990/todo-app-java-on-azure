@@ -98,10 +98,10 @@ node('master') {
         //          secretName: dockerRegistry,
         //          containerRegistryCredentials: [[credentialsId: dockerCredentialId, url: "http://${dockerRegistry}"]]
         //)
-        sh "docker tag ${dockerRegistry}/${env.IMAGE_TAG}:latest ${dockerRegistry}/${env.IMAGE_TAG}-aks:latest"
-		sh "docker tag ${dockerRegistry}/${env.IMAGE_TAG}:latest ${dockerRegistry}/${env.IMAGE_TAG}-aks:${env.BUILD_ID}"
-        sh "docker push ${dockerRegistry}/${env.IMAGE_TAG}-aks:latest:latest"
-		sh "docker push ${dockerRegistry}/${env.IMAGE_TAG}-aks:latest:${env.BUILD_ID}"
+        sh "docker tag ${env.IMAGE_TAG}:latest ${env.IMAGE_TAG}-aks:latest"
+		sh "docker tag ${env.IMAGE_TAG}:latest ${env.IMAGE_TAG}-aks:${env.BUILD_ID}"
+        sh "docker push ${env.IMAGE_TAG}-aks:latest:latest"
+		sh "docker push ${env.IMAGE_TAG}-aks:latest:${env.BUILD_ID}"
         sh "kubectl rollout restart deployment ${env.IMAGE_TAG}"
     }
 

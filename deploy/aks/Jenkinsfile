@@ -104,11 +104,11 @@ node('master') {
             sh "az login --service-principal -u ${AZURE_CLIENT_ID} -p ${AZURE_CLIENT_SECRET} -t {$AZURE_TENANT_ID}"
             sh "az acr login --name flowreg"
             withDockerRegistry([credentialsId: dockerCredentialId, url: "https://${dockerRegistry}"]) {
-                sh "docker tag ${dockerRegistry}:latest ${dockerRegistry}-aks:latest"
-		        sh "docker tag ${dockerRegistry}:latest ${dockerRegistry}-aks:${env.BUILD_ID}"
-                sh "docker push ${dockerRegistry}-aks:latest ${dockerRegistry}"
-		        sh "docker push ${dockerRegistry}-aks:${env.BUILD_ID} ${dockerRegistry}"
-                sh "kubectl rollout restart deployment todoapp"
+                sh "docker tag ${dockerRegistry}/todo-app:latest ${dockerRegistry}/todo-app-aks:latest"
+		        sh "docker tag ${dockerRegistry}/todo-app:latest ${dockerRegistry}/todo-app-aks:${env.BUILD_ID}"
+                sh "docker push ${dockerRegistry}/todo-app-aks:latest"
+		        sh "docker push ${dockerRegistry}/todo-app-aks:${env.BUILD_ID}"
+                sh "kubectl rollout restart deployment todo-app"
             }
             sh "az logout"
         }

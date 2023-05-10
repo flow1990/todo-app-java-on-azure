@@ -105,8 +105,8 @@ node('master') {
             sh "az acr login --name flowreg"
             withDockerRegistry([credentialsId: dockerCredentialId, url: "https://${dockerRegistry}"]) {
                 sh "docker login ${dockerRegistry} -u flowreg -p APjbOn3Gnl83qX1CNh5lZ+uJoZlZHHrFnAebdAbtxN+ACRCdixeo"
-                sh "docker tag ${imageName} ${env.IMAGE_TAG}-aks:latest"
-		        sh "docker tag ${imageName} ${env.IMAGE_TAG}-aks:${env.BUILD_ID}"
+                sh "docker tag ${env.IMAGE_TAG} ${env.IMAGE_TAG}-aks:latest"
+		        sh "docker tag ${env.IMAGE_TAG} ${env.IMAGE_TAG}-aks:${env.BUILD_ID}"
                 sh "docker push ${env.IMAGE_TAG}-aks:latest"
 		        sh "docker push ${env.IMAGE_TAG}-aks:${env.BUILD_ID}"
                 sh "kubectl rollout restart deployment todo-app"

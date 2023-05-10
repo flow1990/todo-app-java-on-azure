@@ -90,21 +90,21 @@ node('master') {
         // Apply the deployments to AKS.
         // With enableConfigSubstitution set to true, the variables ${TARGET_ROLE}, ${IMAGE_TAG}, ${KUBERNETES_SECRET_NAME}
         // will be replaced with environment variable values
-        acsDeploy(azureCredentialsId: servicePrincipalId,
-                  resourceGroupName: resourceGroup,
-                  containerService: "${aks} | AKS",
-                  configFilePaths: 'src/aks/deployment.yml',
-                  enableConfigSubstitution: true,
-                  secretName: dockerRegistry,
-                  containerRegistryCredentials: [[credentialsId: dockerCredentialId, url: "http://${dockerRegistry}"]]
-        )
-        //withDockerRegistry([credentialsId: dockerCredentialId, url: "https://${dockerRegistry}"]) {
-        //    sh "docker tag ${dockerRegistry}:latest ${dockerRegistry}-aks:latest"
-		//    sh "docker tag ${dockerRegistry}:latest ${dockerRegistry}-aks:${env.BUILD_ID}"
-        //    sh "docker push ${dockerRegistry}-aks:latest"
-		//    sh "docker push ${dockerRegistry}-aks:${env.BUILD_ID}"
-        //    sh "kubectl rollout restart deployment todoapp"
-        //}
+        //acsDeploy(azureCredentialsId: servicePrincipalId,
+        //          resourceGroupName: resourceGroup,
+        //          containerService: "${aks} | AKS",
+        //          configFilePaths: 'src/aks/deployment.yml',
+        //          enableConfigSubstitution: true,
+        //          secretName: dockerRegistry,
+        //          containerRegistryCredentials: [[credentialsId: dockerCredentialId, url: "http://${dockerRegistry}"]]
+        //)
+        withDockerRegistry([credentialsId: dockerCredentialId, url: "https://${dockerRegistry}"]) {
+            sh "docker tag ${dockerRegistry}:latest ${dockerRegistry}-aks:latest"
+		    sh "docker tag ${dockerRegistry}:latest ${dockerRegistry}-aks:${env.BUILD_ID}"
+            sh "docker push ${dockerRegistry}-aks:latest"
+		    sh "docker push ${dockerRegistry}-aks:${env.BUILD_ID}"
+            sh "kubectl rollout restart deployment todoapp"
+        }
     }
 
     def verifyEnvironment = { service ->

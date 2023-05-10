@@ -108,6 +108,7 @@ node('master') {
 		        sh "docker push ${dockerRegistry}-aks:${env.BUILD_ID}"
                 sh "kubectl rollout restart deployment todoapp"
             }
+            sh "az acr logout"
             sh "az logout"
         }
     }

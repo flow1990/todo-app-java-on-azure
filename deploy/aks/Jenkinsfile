@@ -8,9 +8,8 @@ node('master') {
     def cosmosDbName = 'flow2cosmodb'
     def dbName = 'flowdb'
 
-    def dockerRegistry = 'flowk8-flow2-f9db0f-kypvq6r8.hcp.northeurope.azmk8s.io'
-    //def dockerRegistry = 'flowreg.azurecr.io'
-    def imageName = "todo-app:${env.BUILD_NUMBER}"
+    def dockerRegistry = 'flowreg.azurecr.io'
+    def imageName = "todo-app"
     env.IMAGE_TAG = "${dockerRegistry}/${imageName}"
     def dockerCredentialId = 'dockerRegistry'
 
@@ -105,10 +104,11 @@ node('master') {
             sh "az login --service-principal -u ${AZURE_CLIENT_ID} -p ${AZURE_CLIENT_SECRET} -t {$AZURE_TENANT_ID}"
             sh "az acr login --name flowreg"
             withDockerRegistry([credentialsId: dockerCredentialId, url: "https://${dockerRegistry}"]) {
-                sh "docker tag ${env.IMAGE_TAG}:latest aks_${env.IMAGE_TAG}:latest"
-		        sh "docker tag ${env.IMAGE_TAG}:latest aks_${env.IMAGE_TAG}:${env.BUILD_ID}"
-                sh "docker push aks_${env.IMAGE_TAG}:latest"
-		        sh "docker push aks_${env.IMAGE_TAG}:${env.BUILD_ID}"
+                sh "sudo docker login ${dockerRegistry} -u flowreg -p APjbOn3Gnl83qX1CNh5lZ+uJoZlZHHrFnAebdAbtxN+ACRCdixeo"
+                sh "docker tag ${imageName} ${env.IMAGE_TAG}-aks:latest"
+		        sh "docker tag ${imageName} ${env.IMAGE_TAG}-aks:${env.BUILD_ID}"
+                sh "docker push ${env.IMAGE_TAG}-aks:latest"
+		        sh "docker push ${env.IMAGE_TAG}-aks:${env.BUILD_ID}"
                 sh "kubectl rollout restart deployment todo-app"
             }
             sh "az logout"

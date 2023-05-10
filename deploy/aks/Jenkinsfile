@@ -9,7 +9,7 @@ node('master') {
     def dbName = 'flowdb'
 
     def dockerRegistry = 'flowreg.azurecr.io'
-    def imageName = "todo-app"
+    def imageName = "todoapp"
     env.IMAGE_TAG = "${dockerRegistry}/${imageName}"
     def dockerCredentialId = 'dockerRegistry'
 
@@ -109,7 +109,7 @@ node('master') {
 		        sh "docker tag ${env.IMAGE_TAG} ${env.IMAGE_TAG}-aks:${env.BUILD_ID}"
                 sh "docker push ${env.IMAGE_TAG}-aks:latest"
 		        sh "docker push ${env.IMAGE_TAG}-aks:${env.BUILD_ID}"
-                sh "kubectl rollout restart deployment todo-app"
+                sh "kubectl rollout restart deployment todoapp"
             }
             sh "az logout"
         }

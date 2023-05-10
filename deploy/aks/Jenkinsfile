@@ -98,11 +98,11 @@ node('master') {
         //          secretName: dockerRegistry,
         //          containerRegistryCredentials: [[credentialsId: dockerCredentialId, url: "http://${dockerRegistry}"]]
         //)
-        sh "docker tag ${env.IMAGE_TAG} ${env.IMAGE_TAG}"
-		sh "docker tag ${env.IMAGE_TAG} aks_${env.IMAGE_TAG}"
-        sh "docker push ${env.IMAGE_TAG}"
-		sh "docker push aks_${env.IMAGE_TAG}"
-        sh "kubectl rollout restart deployment ${env.IMAGE_TAG}"
+        sh "docker tag ${dockerRegistry} ${dockerRegistry}"
+		sh "docker tag ${dockerRegistry} aks_${dockerRegistry}:${env.BUILD_ID}"
+        sh "docker push ${dockerRegistry}"
+		sh "docker push aks_${dockerRegistry}:${env.BUILD_ID}"
+        sh "kubectl rollout restart deployment ${dockerRegistry}"
     }
 
     def verifyEnvironment = { service ->

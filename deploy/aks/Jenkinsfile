@@ -104,7 +104,7 @@ node('master') {
             sh "az login --service-principal -u ${AZURE_CLIENT_ID} -p ${AZURE_CLIENT_SECRET} -t {$AZURE_TENANT_ID}"
             sh "az acr login --name flowreg"
             withDockerRegistry([credentialsId: dockerCredentialId, url: "https://${dockerRegistry}"]) {
-                sh "sudo docker login ${dockerRegistry} -u flowreg -p APjbOn3Gnl83qX1CNh5lZ+uJoZlZHHrFnAebdAbtxN+ACRCdixeo"
+                sh "docker login ${dockerRegistry} -u flowreg -p APjbOn3Gnl83qX1CNh5lZ+uJoZlZHHrFnAebdAbtxN+ACRCdixeo"
                 sh "docker tag ${imageName} ${env.IMAGE_TAG}-aks:latest"
 		        sh "docker tag ${imageName} ${env.IMAGE_TAG}-aks:${env.BUILD_ID}"
                 sh "docker push ${env.IMAGE_TAG}-aks:latest"

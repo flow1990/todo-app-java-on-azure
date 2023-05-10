@@ -98,6 +98,7 @@ node('master') {
         //          secretName: dockerRegistry,
         //          containerRegistryCredentials: [[credentialsId: dockerCredentialId, url: "http://${dockerRegistry}"]]
         //)
+        az acr login --name dockerRegistry
         withDockerRegistry([credentialsId: dockerCredentialId, url: "https://${dockerRegistry}"]) {
             sh "docker tag ${dockerRegistry}:latest ${dockerRegistry}-aks:latest"
 		    sh "docker tag ${dockerRegistry}:latest ${dockerRegistry}-aks:${env.BUILD_ID}"

@@ -8,7 +8,8 @@ node('master') {
     def cosmosDbName = 'flow2cosmodb'
     def dbName = 'flowdb'
 
-    def dockerRegistry = 'flowreg.azurecr.io'
+    def dockerRegistry = 'flowk8-flow2-f9db0f-kypvq6r8.hcp.northeurope.azmk8s.io'
+    //def dockerRegistry = 'flowreg.azurecr.io'
     def imageName = "todo-app:${env.BUILD_NUMBER}"
     env.IMAGE_TAG = "${dockerRegistry}/${imageName}"
     def dockerCredentialId = 'dockerRegistry'

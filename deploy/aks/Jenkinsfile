@@ -98,7 +98,11 @@ node('master') {
         //          secretName: dockerRegistry,
         //          containerRegistryCredentials: [[credentialsId: dockerCredentialId, url: "http://${dockerRegistry}"]]
         //)
-        sh "az acr login --name dockerRegistry"
+        withCredentials([azureServicePrincipal(servicePrincipalId)]) {
+            sh "az login --service-principal -u ${AZURE_CLIENT_ID} -p ${AZURE_CLIENT_SECRET} -t {$AZURE_TENANT_ID}"
+            sh "az acr login --name dockerRegistry"
+            sh "az logout"
+        }
         withDockerRegistry([credentialsId: dockerCredentialId, url: "https://${dockerRegistry}"]) {
             sh "docker tag ${dockerRegistry}:latest ${dockerRegistry}-aks:latest"
 		    sh "docker tag ${dockerRegistry}:latest ${dockerRegistry}-aks:${env.BUILD_ID}"
